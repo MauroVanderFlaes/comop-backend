@@ -2,13 +2,14 @@ const express = require('express')
 const app = express()
 const port = 3000
 const apiGyms = require('./routes/api/v1/gyms')
+require('dotenv').config()
 
 // app.get('/', (req, res) => {
 //   res.send('Hello World!')
 // }) 
 
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://127.0.0.1:27017/comop').then(() => {
+mongoose.connect(process.env.MONGODB).then(() => {
   console.log('Connected to MongoDB');
 }).catch((error) => {
   console.error('MongoDB connection error:', error);
