@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const salt = 12;
 
-
 const createUser = async (req, res) => {
     try {
         let { username, email, password } = req.body;
@@ -58,4 +57,47 @@ const createUser = async (req, res) => {
     }
 };
 
-module.exports = {createUser};
+const loginUser = async (req, res) => {
+    let { email, password } = req.body;
+
+    // Input validatie
+    if (!email || !password) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Please provide email and password.'
+        });
+    }
+
+    // Controleer of de gebruiker bestaat
+    let user = await User.findOne({ email });
+    if (!user) {
+        return res.status(401).json({
+            status: 'error',
+            message: 'Invalid email or password.'
+        });
+    }
+
+    // Controleer of het wachtwoord overeenkomt
+    if (!await bcrypt.compare(password, user.password)) {
+        return res.status(401).json({
+            status: 'error',
+            message: 'Invalid email or password.'
+        });
+    }
+
+    // Creëer JWT-token
+    const token = jwt.sign(
+        { user_id: user._id },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+
+
+  return res.status(200).json({
+    status: "success",
+    message: "User logged in successfully",
+    data: { user, token },
+  });
+};
+
+module.exports = {createUser, loginUser};
