@@ -93,13 +93,14 @@ const loginUser = async (req, res) => {
         { user_id: user._id },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
-    );
+      );
 
-    return res.status(200).json({
-        status: "success",
-        message: "User logged in successfully",
-        data: { user, token },
-    });
+
+  return res.status(200).json({
+    status: "success",
+    message: "User logged in successfully",
+    data: { user, token },
+  });
 };
 
-module.exports = { createUser, loginUser };
+module.exports = {createUser, loginUser};
