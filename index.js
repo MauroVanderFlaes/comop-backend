@@ -3,6 +3,7 @@ const app = express()
 const port = 3000
 const apiGyms = require('./routes/api/v1/gyms')
 const apiUsers = require('./routes/api/v1/users')
+const apiChallenges = require('./routes/api/v1/challenges')
 require('dotenv').config()
 
 // app.get('/', (req, res) => {
@@ -19,6 +20,7 @@ mongoose.connect(process.env.MONGODB).then(() => {
 app.use(express.json());
 app.use('/api/v1/gyms', apiGyms)
 app.use('/api/v1/users', apiUsers)
+app.use('/api/v1/challenges', apiChallenges)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
