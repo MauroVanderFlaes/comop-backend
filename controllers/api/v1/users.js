@@ -1,5 +1,4 @@
 const User = require('../../../models/User');
-const mongoose = require('mongoose');
 require('../../../middleware/auth');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -130,12 +129,6 @@ const getUserCredits = async (req, res) => {
     try {
         const userId = req.params.id;
         console.log(userId);
-        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'Invalid user ID.'
-            });
-        }
 
         const user = await User.findById(userId);
         if (!user) {
