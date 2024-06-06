@@ -1,4 +1,5 @@
 const User = require('../../../models/User');
+const mongoose = require('mongoose');
 require('../../../middleware/auth');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -6,7 +7,8 @@ const salt = 12;
 
 const createUser = async (req, res) => {
     try {
-        let { username, email, password } = req.body;
+        let { username, email, password, credits } = req.body;
+        console.log(req.body);
 
         // Input validatie
         if (!username || !email || !password) {
@@ -32,7 +34,8 @@ const createUser = async (req, res) => {
         let user = new User({
             username,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            credits,
         });
 
         user = await user.save();
@@ -56,6 +59,7 @@ const createUser = async (req, res) => {
         });
     }
 };
+
 
 const loginUser = async (req, res) => {
     let { identifier, password } = req.body;
@@ -103,4 +107,59 @@ const loginUser = async (req, res) => {
   });
 };
 
-module.exports = {createUser, loginUser};
+const getAllUsers = async (req, res) => {
+    //get all users
+    try {
+        let users = await User.find();
+        res.status(200).json({
+            status: 'success',
+            data: {
+                users
+            }
+        });
+    } catch (error) {
+        console.error('Error getting users:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        });
+    }
+}
+
+const getUserCredits = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        console.log(userId);
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Invalid user ID.'
+            });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found.'
+            });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                credits: user.credits
+            }
+        });
+    } catch (error) {
+        console.error('Error getting user credits:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        });
+    }
+};
+
+
+
+module.exports = {createUser, loginUser, getAllUsers ,getUserCredits};
