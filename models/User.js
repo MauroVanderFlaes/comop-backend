@@ -17,6 +17,9 @@ const UserSchema = new Schema({
     credits: {
         type: Number,
         default: 0
+    },
+    imgUrl: {
+        type: String,
     }
 });
 
