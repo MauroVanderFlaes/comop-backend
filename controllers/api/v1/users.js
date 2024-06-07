@@ -1,8 +1,22 @@
 const User = require('../../../models/User');
+// const Image = require('../../../models/Image');
 require('../../../middleware/auth');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const salt = 12;
+
+// require('dotenv').config();
+// const cloudinary = require('cloudinary').v2;
+// const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+// const apiKey = process.env.CLOUDINARY_API_KEY;
+// const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+// // Configure Cloudinary
+// cloudinary.config({
+//   cloud_name: cloudName,
+//   api_key: apiKey,
+//   api_secret: apiSecret
+// });  
 
 const createUser = async (req, res) => {
     try {
@@ -151,8 +165,73 @@ const getUserCredits = async (req, res) => {
             message: 'Internal Server Error'
         });
     }
+    
+}
+
+const uploadProfileImg = async (req, res) => {
+    try {
+        // console.log("Received request:", req.body);
+        const userId = req.params.id;
+        // console.log("User ID:", userId);
+        const { imgUrl } = req.body;
+        // console.log("Image URL:", imgUrl);
+
+        // Update user's imgUrl
+        const user = await User.findByIdAndUpdate(userId, { imgUrl }, { new: true });
+
+        if (!user) {
+            console.log("User not found");
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Profile image uploaded successfully',
+            data: user
+        });
+    } catch (err) {
+        console.error("Error updating profile image:", err);
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        });
+    }
 };
 
 
+const getProfileImg = async (req, res, next) => {
+    try {
+        const userId = req.params.id; // Define userId here
+        const user = await User.findById(userId);
+        console.log("User:", user);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+        res.status(200).json({
+            status: 'success',
+            data: { imgUrl: user.imgUrl }
+        });
 
-module.exports = {createUser, loginUser, getAllUsers ,getUserCredits};
+        console.log("User image URL:", user.imgUrl);
+    } catch (error) {
+        console.error('Error finding user by ID:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        });
+    }
+}
+
+
+
+
+
+
+
+module.exports = {createUser, loginUser, getAllUsers ,getUserCredits, uploadProfileImg, getProfileImg};
