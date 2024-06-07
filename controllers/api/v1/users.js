@@ -1,6 +1,4 @@
 const User = require('../../../models/User');
-// const Image = require('../../../models/Image');
-require('../../../middleware/auth');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const salt = 12;
@@ -8,7 +6,6 @@ const salt = 12;
 const createUser = async (req, res) => {
     try {
         let { username, email, password, credits } = req.body;
-        console.log(req.body);
 
         // Input validatie
         if (!username || !email || !password) {
@@ -31,7 +28,6 @@ const createUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const gymId = req.session.gymId;
-        console.log("Gym ID:", gymId);
 
         // Creëer een nieuwe gebruiker
         let user = new User({
@@ -63,7 +59,6 @@ const createUser = async (req, res) => {
         });
     }
 };
-
 
 const loginUser = async (req, res) => {
     let { identifier, password } = req.body;
@@ -103,16 +98,15 @@ const loginUser = async (req, res) => {
         { expiresIn: "1h" }
       );
 
-
-  return res.status(200).json({
-    status: "success",
-    message: "User logged in successfully",
-    data: { user, token },
-  });
+    return res.status(200).json({
+        status: "success",
+        message: "User logged in successfully",
+        data: { user, token },
+    });
 };
 
 const getAllUsers = async (req, res) => {
-    //get all users
+    // Get all users
     try {
         let users = await User.find();
         res.status(200).json({
@@ -128,13 +122,11 @@ const getAllUsers = async (req, res) => {
             message: 'Internal Server Error'
         });
     }
-}
+};
 
 const getUserCredits = async (req, res) => {
     try {
         const userId = req.params.id;
-        console.log(userId);
-
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({
@@ -156,22 +148,17 @@ const getUserCredits = async (req, res) => {
             message: 'Internal Server Error'
         });
     }
-    
-}
+};
 
 const uploadProfileImg = async (req, res) => {
     try {
-        // console.log("Received request:", req.body);
         const userId = req.params.id;
-        // console.log("User ID:", userId);
         const { imgUrl } = req.body;
-        // console.log("Image URL:", imgUrl);
 
         // Update user's imgUrl
         const user = await User.findByIdAndUpdate(userId, { imgUrl }, { new: true });
 
         if (!user) {
-            console.log("User not found");
             return res.status(404).json({
                 status: 'error',
                 message: 'User not found'
@@ -192,12 +179,10 @@ const uploadProfileImg = async (req, res) => {
     }
 };
 
-
-const getProfileImg = async (req, res, next) => {
+const getProfileImg = async (req, res) => {
     try {
-        const userId = req.params.id; // Define userId here
+        const userId = req.params.id;
         const user = await User.findById(userId);
-        console.log("User:", user);
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -208,8 +193,6 @@ const getProfileImg = async (req, res, next) => {
             status: 'success',
             data: { imgUrl: user.imgUrl }
         });
-
-        console.log("User image URL:", user.imgUrl);
     } catch (error) {
         console.error('Error finding user by ID:', error);
         res.status(500).json({
@@ -217,12 +200,34 @@ const getProfileImg = async (req, res, next) => {
             message: 'Internal Server Error'
         });
     }
-}
+};
 
+const getUsersByGymId = async (req, res) => {
+    const { gymId } = req.params;
 
+    try {
+        const users = await User.find({ gymId });
+        res.status(200).json({
+            status: 'success',
+            data: {
+                users
+            }
+        });
+    } catch (error) {
+        console.error('Error getting users by gymId:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        });
+    }
+};
 
-
-
-
-
-module.exports = {createUser, loginUser, getAllUsers ,getUserCredits, uploadProfileImg, getProfileImg};
+module.exports = {
+    getAllUsers,
+    getUsersByGymId,
+    uploadProfileImg,
+    getProfileImg,
+    createUser,
+    loginUser,
+    getUserCredits
+};
