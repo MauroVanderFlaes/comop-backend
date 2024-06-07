@@ -5,19 +5,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const salt = 12;
 
-// require('dotenv').config();
-// const cloudinary = require('cloudinary').v2;
-// const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-// const apiKey = process.env.CLOUDINARY_API_KEY;
-// const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-// // Configure Cloudinary
-// cloudinary.config({
-//   cloud_name: cloudName,
-//   api_key: apiKey,
-//   api_secret: apiSecret
-// });  
-
 const createUser = async (req, res) => {
     try {
         let { username, email, password, credits } = req.body;
@@ -43,12 +30,16 @@ const createUser = async (req, res) => {
         // Hash het wachtwoord
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        const gymId = req.session.gymId;
+        console.log("Gym ID:", gymId);
+
         // Creëer een nieuwe gebruiker
         let user = new User({
             username,
             email,
             password: hashedPassword,
             credits,
+            gymId
         });
 
         user = await user.save();

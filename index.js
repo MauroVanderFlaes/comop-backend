@@ -1,4 +1,5 @@
 const express = require('express')
+const session = require('express-session')
 const app = express()
 const port = 3000
 const apiGyms = require('./routes/api/v1/gyms')
@@ -18,6 +19,16 @@ mongoose.connect(process.env.MONGODB).then(() => {
 });
 
 app.use(express.json());
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Note: set secure to true in production with HTTPS
+}));
+
+
+
 app.use('/api/v1/gyms', apiGyms)
 app.use('/api/v1/users', apiUsers)
 app.use('/api/v1/challenges', apiChallenges)
