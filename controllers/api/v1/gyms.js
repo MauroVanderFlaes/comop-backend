@@ -72,45 +72,6 @@ const postGyms = async (req, res) => {
     }
 }
 
-// const compareQrCode = async (req, res) => {
-//     try {
-        
-//         const scannedQrCode = req.body.qrCode;
-        
-
-//         const gyms = await Gyms.find();
-
-        
-//         gyms.forEach(gym => {
-//             // console.log("QR code", gym.qrCode);
-//         });
-
-//         // console.log("this is the scanned qr code", scannedQrCode);
-//         // console.log("this is the qr code", qrCode);
-
-//         const matchingGym = gyms.find(gym => gym.qrCode === scannedQrCode);
-
-
-//         if (matchingGym) {
-//             console.log("Matching gym found", matchingGym);
-//             res.json({
-//                 "status": "success",
-//                 "data": matchingGym
-//             });
-//         } else {
-//             res.json({
-//                 "status": "error",
-//                 "message": "No matching gym found"
-//             });
-//         }
-//     } catch (error) {
-//         res.json({
-//             "status": "error",
-//             "message": error.message
-//         });
-//     }
-// }
-
 const compareQrCode = async (req, res) => {
     try {
         const scannedQrCode = req.body.qrCode;
@@ -119,6 +80,7 @@ const compareQrCode = async (req, res) => {
         
         if (gym) {
             console.log("Matching gym found", gym);
+            req.session.gymId = gym._id;
             res.json({
                 "status": "success",
                 "data": gym

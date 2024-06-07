@@ -20,7 +20,14 @@ const UserSchema = new Schema({
     },
     imgUrl: {
         type: String,
+    },
+
+    // get gymId from gym
+    gymId: {
+        type: String,
+        
     }
+    
 });
 
 const Users = mongoose.model('Users', UserSchema);
