@@ -20,15 +20,18 @@ const createChallenges = async (req, res) => {
     console.log(req.body);
     console.log("Creating challenge");
     try {
-        let { title, description, image, time, category, completed } = req.body;
+        let { title, description, imageUrl, time, category, credits, completed } = req.body;
         completed = completed.toLowerCase() === 'yes';  // Zet "Yes" om naar boolean
+
+        console.log('image url:', imageUrl);
 
         let challenge = new Challenges({
             title,
             description,
-            image,
+            imageUrl,
             time,
             category,
+            credits,
             completed
         });
         await challenge.save();
@@ -51,7 +54,7 @@ const updateChallenges = async (req, res) => {
         let challenge = await Challenges.findOneAndUpdate({ _id: req.params.id }, {
             title,
             description,
-            image,
+            imageUrl,
             time,
             category,
             completed
