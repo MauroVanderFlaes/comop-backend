@@ -43,19 +43,15 @@ const getGymByQrCode = async (req, res) => {
 
 const postGyms = async (req, res) => {
     try {
-        let { name, address, city, qrCode } = req.body;
-        let imageBuffer = null;
-
-        if (req.file) {
-            imageBuffer = fs.readFileSync(req.file.path);
-        }
+        let { name, address, city, qrCode, imageData } = req.body;
+        console.log('imageData:', imageData);
         
         let gyms = new Gyms({
             name,
             address,
             city,
             qrCode,
-            image: imageBuffer
+            imageData
         });
 
         const savedGym = await gyms.save();
