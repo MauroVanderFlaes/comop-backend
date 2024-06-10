@@ -25,6 +25,10 @@ const challengeSchema = new Schema({
         type: Number, required: true 
     },
 
+    active: {
+        type: Boolean, required: true 
+    },
+
     completed: {
          type: Boolean, required: true 
     }
