@@ -11,12 +11,13 @@ const challengeSchema = new Schema({
     },
 
     imageUrl: {
-         type: String, required: false    
+        type: String, required: false    
     },
 
     time: {
-         type: Number, required: true 
+        type: Number, required: true 
     },
+
     category: {
         type: String, required: true 
     },
@@ -30,7 +31,20 @@ const challengeSchema = new Schema({
     },
 
     completed: {
-         type: Boolean, required: true 
+        type: Boolean, required: true 
+    },
+
+    requiredImages: {
+        type: Number, required: true, min: 1, max: 3 
+    },
+
+    imageDescriptions: {
+        type: [String], required: true, validate: {
+            validator: function(v) {
+                return v.length === this.requiredImages;
+            },
+            message: 'Image descriptions array length must match the number of required images'
+        }
     }
 });
 
