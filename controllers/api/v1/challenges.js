@@ -20,8 +20,23 @@ const createChallenges = async (req, res) => {
     console.log(req.body);
     console.log("Creating challenge");
     try {
-        let { title, description, imageUrl, time, category, credits, active ,completed } = req.body;
+        let { title, description, imageUrl, time, category, credits, active, completed, requiredImages, imageDescriptions } = req.body;
         completed = completed.toLowerCase() === 'yes';  // Zet "Yes" om naar boolean
+
+        if (requiredImages < 1 || requiredImages > 3) {
+            return res.json({
+                status: "error",
+                message: "Number of required images must be between 1 and 3"
+            });
+        }
+
+        if (!Array.isArray(imageDescriptions) || imageDescriptions.length !== requiredImages) {
+            return res.json({
+                status: "error",
+                message: "Image descriptions array length must match the number of required images"
+            });
+        }
+
 
         console.log('image url:', imageUrl);
 
@@ -33,7 +48,10 @@ const createChallenges = async (req, res) => {
             category,
             credits,
             active, // New challenges are not active until they are
-            completed
+            completed,
+            requiredImages,
+            imageDescriptions
+
         });
         await challenge.save();
         res.json({
@@ -50,8 +68,23 @@ const createChallenges = async (req, res) => {
 
 const updateChallenges = async (req, res) => {
     try {
-        let { title, description, imageUrl, time, category,active, completed } = req.body;
+        let { title, description, imageUrl, time, category,active, completed, requiredImages, imageDescriptions } = req.body;
         completed = completed.toLowerCase() === 'yes';  // Zet "Yes" om naar boolean
+
+        if (requiredImages < 1 || requiredImages > 3) {
+            return res.json({
+                status: "error",
+                message: "Number of required images must be between 1 and 3"
+            });
+        }
+
+        if (!Array.isArray(imageDescriptions) || imageDescriptions.length !== requiredImages) {
+            return res.json({
+                status: "error",
+                message: "Image descriptions array length must match the number of required images"
+            });
+        }
+
         let challenge = await Challenges.findOneAndUpdate({ _id: req.params.id }, {
             title,
             description,
@@ -59,7 +92,9 @@ const updateChallenges = async (req, res) => {
             time,
             category,
             active,
-            completed
+            completed,
+            requiredImages,
+            imageDescriptions
         }, { new: true });
         res.json({
             "status": "success",
