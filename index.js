@@ -5,6 +5,7 @@ const port = 3000
 const apiGyms = require('./routes/api/v1/gyms')
 const apiUsers = require('./routes/api/v1/users')
 const apiChallenges = require('./routes/api/v1/challenges')
+const apiGymfeed = require('./routes/api/v1/gymfeed')
 require('dotenv').config()
 
 // app.get('/', (req, res) => {
@@ -32,6 +33,7 @@ app.use(session({
 app.use('/api/v1/gyms', apiGyms)
 app.use('/api/v1/users', apiUsers)
 app.use('/api/v1/challenges', apiChallenges)
+app.use('/api/v1/gymfeed', apiGymfeed)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
