@@ -64,6 +64,34 @@ const postGymfeed = async (req, res) => {
       }
     };
 
+    const getCompletedChallengesByUserId = async (req, res) => {
+        try {
+          const userId = req.params.userId;
+          const user = await Users.findById(userId);
+          console.log('user:', user);
+          if (!user) {
+            return res.json({
+              status: 'error',
+              message: 'User not found'
+            });
+          }
+      
+          const gymfeeds = await Gymfeed.find({ userId })
+            .populate('challengeId', 'title description');
+      
+          res.json({
+            status: 'success',
+            data: gymfeeds
+          });
+        } catch (error) {
+          res.json({
+            status: 'error',
+            message: error.message
+          });
+        }
+      };
+
 
 module.exports.getGymfeed = getGymfeed;
 module.exports.postGymfeed = postGymfeed;
+module.exports.getCompletedChallengesByUserId = getCompletedChallengesByUserId;
