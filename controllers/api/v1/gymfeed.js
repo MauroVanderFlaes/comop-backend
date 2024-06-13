@@ -5,7 +5,7 @@ const Users = require('../../../models/User');
 const getGymfeed = async (req, res) => {
     try {
         const gymfeeds = await Gymfeed.find()
-          .populate('userId', 'username email')
+          .populate('userId', 'username email imgUrl')
           .populate('challengeId', 'title description');
     
         res.json({
@@ -78,7 +78,8 @@ const postGymfeed = async (req, res) => {
           }
       
           const gymfeeds = await Gymfeed.find({ userId })
-            .populate('challengeId', 'title description');
+            .populate('challengeId', 'title description')
+            .populate('userId', 'username email imgUrl');
       
           res.json({
             status: 'success',
