@@ -22,7 +22,7 @@ const getGymfeed = async (req, res) => {
     
 const postGymfeed = async (req, res) => {
     try {
-        const { userId, challengeId, uploadedImages } = req.body;
+        const { userId, challengeId, uploadedImages, skipped } = req.body;
     
         // Fetch the challenge to get the required number of images
         const challenge = await Challenges.findById(challengeId);
@@ -36,10 +36,10 @@ const postGymfeed = async (req, res) => {
         const { requiredImages } = challenge;
     
         // Validate the uploaded images length
-        if (!Array.isArray(uploadedImages) || uploadedImages.length !== requiredImages) {
+        if (!skipped && (!Array.isArray(uploadedImages) || uploadedImages.length !== requiredImages)) {
           return res.json({
             status: 'error',
-            message: 'Uploaded images array length must match the number of required images'
+            message: 'Uploaded images array length must match the number of required images unless skipped'
           });
         }
     
@@ -47,7 +47,8 @@ const postGymfeed = async (req, res) => {
           userId,
           challengeId,
           requiredImages,
-          uploadedImages
+          uploadedImages: skipped ? [] : uploadedImages,
+          skipped
         });
     
         await gymfeed.save();
