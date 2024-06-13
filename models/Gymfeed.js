@@ -21,14 +21,23 @@ const gymfeedSchema = new Schema({
   },
   uploadedImages: {
     type: [String],
-    required: true,
+    required: function() {
+      return !this.skipped;
+    },
     validate: {
       validator: function(v) {
-        return v.length === this.requiredImages;
+        // Only validate length if not skipped
+        return this.skipped || (Array.isArray(v) && v.length === this.requiredImages);
       },
       message: 'Uploaded images array length must match the number of required images'
     }
   },
+
+  skipped: {
+    type: Boolean,
+    default: false
+  },
+
   completionDate: {
     type: Date,
     default: Date.now
