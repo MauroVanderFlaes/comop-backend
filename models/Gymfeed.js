@@ -41,7 +41,19 @@ const gymfeedSchema = new Schema({
   completionDate: {
     type: Date,
     default: Date.now
-  }
+  },
+
+  acceptances: 
+  { 
+    type: [Schema.Types.ObjectId],
+    ref: 'Users', default: [] 
+  },
+
+  rejections: {
+    type: [Schema.Types.ObjectId],
+    ref: 'Users', default: [] 
+    } 
+
 });
 
 const Gymfeed = mongoose.model('Gymfeed', gymfeedSchema);
