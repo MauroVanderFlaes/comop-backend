@@ -3,27 +3,22 @@ const Challenges = require('../../../models/Challenge');
 const Users = require('../../../models/User');
 
 const getGymfeed = async (req, res) => {
-    try {
-        const gymfeeds = await Gymfeed.find()
-          .populate('userId', 'username email imgUrl gymId')
-          .populate('challengeId', 'title description');
+  try {
+    const gymfeeds = await Gymfeed.find()
+      .populate('userId', 'username email imgUrl gymId')
+      .populate('challengeId', 'title description');
 
-          const totalMembers = await Users.countDocuments();
-          gymfeeds.forEach(feed => {
-            feed.isAccepted = feed.acceptances.length >= totalMembers / 2;
-          });
-    
-        res.json({
-          status: 'success',
-          data: gymfeeds
-        });
-      } catch (error) {
-        res.json({
-          status: 'error',
-          message: error.message
-        });
-      }
-    };
+    res.json({
+      status: 'success',
+      data: gymfeeds
+    });
+  } catch (error) {
+    res.json({
+      status: 'error',
+      message: error.message
+    });
+  }
+};
     
 const postGymfeed = async (req, res) => {
     try {
@@ -101,57 +96,141 @@ const postGymfeed = async (req, res) => {
 
       const acceptGymfeed = async (req, res) => {
         try {
-            const { userId } = req.body; // Destructure userId from req.body
-            console.log('userId:', userId);
-            const gymfeed = await Gymfeed.findById(req.params.id);
-            console.log('gymfeed:', gymfeed);
-
-            if (!gymfeed) {
-                return res.status(404).json({
-                    status: 'error',
-                    message: 'Gymfeed not found'
-                });
-            }
-    
-            if (!gymfeed.acceptances.includes(userId)) {
-                gymfeed.acceptances.push(userId);
-                gymfeed.rejections = gymfeed.rejections.filter(id => id.toString() !== userId);
-            }
-    
-            await gymfeed.save();
-            res.json({ status: 'success', data: gymfeed });
-        } catch (error) {
-            res.status(500).json({ status: 'error', message: error.message });
-        }
-    };
-    
-
-    const rejectGymfeed = async (req, res) => {
-      try {
-          const { userId } = req.body; // Destructure userId from req.body
+          const { userId } = req.body;
           const gymfeed = await Gymfeed.findById(req.params.id);
-  
+      
           if (!gymfeed) {
-              return res.status(404).json({
-                  status: 'error',
-                  message: 'Gymfeed not found'
-              });
+            return res.status(404).json({
+              status: 'error',
+              message: 'Gymfeed not found'
+            });
           }
-  
-          // Remove userId from acceptances (including null values)
-          gymfeed.acceptances = gymfeed.acceptances.filter(id => id && id.toString() !== userId);
-  
-          // Check if userId already exists in rejections
-          if (!gymfeed.rejections.includes(userId)) {
-              gymfeed.rejections.push(userId);
+      
+          // Get the user who posted the gymfeed
+          const user = await Users.findById(gymfeed.userId);
+          if (!user) {
+            return res.status(404).json({
+              status: 'error',
+              message: 'User not found'
+            });
           }
-  
+      
+          // Count gym members with the same gymId as the user who posted the gymfeed
+          const gymMembersCount = await Users.countDocuments({ gymId: user.gymId });
+      
+          console.log('gymMembersCount:', gymMembersCount);
+          const halfGymMembers = Math.ceil(gymMembersCount / 2);
+      
+          // Check if the user has already accepted or rejected this gymfeed
+          if (gymfeed.acceptances.includes(userId)) {
+            return res.status(400).json({
+              status: 'error',
+              message: 'User has already accepted this gymfeed'
+            });
+          }
+      
+          if (gymfeed.rejections.includes(userId)) {
+            return res.status(400).json({
+              status: 'error',
+              message: 'User has already rejected this gymfeed'
+            });
+          }
+      
+          // Add user to acceptances
+          gymfeed.acceptances.push(userId);
+          gymfeed.rejections = gymfeed.rejections.filter(id => id.toString() !== userId);
+      
+          if (gymfeed.acceptances.length >= halfGymMembers) {
+            // Check if this is the first time reaching the required acceptances
+            if (!gymfeed.completed) {
+              gymfeed.completed = true;
+              user.credits += 100; // Award credits to the user who posted the gymfeed
+              await user.save();
+            }
+          } else {
+            // If not enough acceptances, ensure it's marked as not completed
+            gymfeed.completed = false;
+          }
+      
           await gymfeed.save();
           res.json({ status: 'success', data: gymfeed });
-      } catch (error) {
+        } catch (error) {
           res.status(500).json({ status: 'error', message: error.message });
-      }
-  };
+        }
+      };
+
+      const rejectGymfeed = async (req, res) => {
+        try {
+          const { userId } = req.body;
+          const gymfeed = await Gymfeed.findById(req.params.id);
+      
+          if (!gymfeed) {
+            return res.status(404).json({
+              status: 'error',
+              message: 'Gymfeed not found'
+            });
+          }
+      
+          // Get the user who posted the gymfeed
+          const user = await Users.findById(gymfeed.userId);
+          if (!user) {
+            return res.status(404).json({
+              status: 'error',
+              message: 'User not found'
+            });
+          }
+      
+          // Count gym members with the same gymId as the user who posted the gymfeed
+          const gymMembersCount = await Users.countDocuments({ gymId: user.gymId });
+      
+          console.log('gymMembersCount:', gymMembersCount);
+          const halfGymMembers = Math.ceil(gymMembersCount / 2);
+      
+          // Check if the user has already rejected or accepted this gymfeed
+          if (gymfeed.rejections.includes(userId)) {
+            return res.status(400).json({
+              status: 'error',
+              message: 'User has already rejected this gymfeed'
+            });
+          }
+      
+          if (gymfeed.acceptances.includes(userId)) {
+            return res.status(400).json({
+              status: 'error',
+              message: 'User has already accepted this gymfeed'
+            });
+          }
+      
+          // Remove user from acceptances if already present
+          gymfeed.acceptances = gymfeed.acceptances.filter(id => id && id.toString() !== userId);
+      
+          // Add user to rejections
+          gymfeed.rejections.push(userId);
+      
+          // Check if at least half of the gym members have rejected this gymfeed
+          if (gymfeed.rejections.length >= halfGymMembers) {
+            // Remove this gymfeed from the gymfeed collection
+            await Gymfeed.findByIdAndDelete(gymfeed._id);
+            return res.json({
+              status: 'success',
+              message: 'Gymfeed removed due to rejection by more than half of the gym members'
+            });
+          } else if (gymfeed.acceptances.length >= halfGymMembers) {
+            // Mark the gymfeed as completed if enough acceptances
+            gymfeed.completed = true;
+            user.credits += 100; // Award credits to the user who posted the gymfeed
+            await user.save();
+          } else {
+            // If not enough rejections or acceptances, ensure it's marked as not completed
+            gymfeed.completed = false;
+          }
+      
+          await gymfeed.save();
+          res.json({ status: 'success', data: gymfeed });
+        } catch (error) {
+          res.status(500).json({ status: 'error', message: error.message });
+        }
+      };
 
 module.exports.getGymfeed = getGymfeed;
 module.exports.postGymfeed = postGymfeed;
