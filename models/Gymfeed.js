@@ -1,4 +1,3 @@
-// models/Gymfeed.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -32,28 +31,29 @@ const gymfeedSchema = new Schema({
       message: 'Uploaded images array length must match the number of required images'
     }
   },
-
   skipped: {
     type: Boolean,
     default: false
   },
-
   completionDate: {
     type: Date,
     default: Date.now
   },
-
-  acceptances: 
-  { 
+  acceptances: {
     type: [Schema.Types.ObjectId],
-    ref: 'Users', default: [] 
+    ref: 'Users',
+    default: []
   },
-
   rejections: {
     type: [Schema.Types.ObjectId],
-    ref: 'Users', default: [] 
-    } 
-
+    ref: 'Users',
+    default: []
+  },
+  completed: {
+    type: Boolean,
+    default: false
+  },
+  creditedUsers: [{ type: Schema.Types.ObjectId, ref: 'Users' }] // Track users who have been credited
 });
 
 const Gymfeed = mongoose.model('Gymfeed', gymfeedSchema);
