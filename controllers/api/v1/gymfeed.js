@@ -5,7 +5,7 @@ const Users = require('../../../models/User');
 const getGymfeed = async (req, res) => {
     try {
         const gymfeeds = await Gymfeed.find()
-          .populate('userId', 'username email imgUrl')
+          .populate('userId', 'username email imgUrl gymId')
           .populate('challengeId', 'title description');
 
           const totalMembers = await Users.countDocuments();
