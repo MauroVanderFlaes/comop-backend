@@ -8,6 +8,7 @@ router.post('/', gymfeedController.postGymfeed)
 router.get('/:userId', gymfeedController.getCompletedChallengesByUserId)
 router.post('/:id/accept', gymfeedController.acceptGymfeed)
 router.post('/:id/reject', gymfeedController.rejectGymfeed)
+router.get('/completed/:gymId', gymfeedController.getCompletedChallengesByGymId)    
 
 
 module.exports = router
