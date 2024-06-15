@@ -1,6 +1,6 @@
 const Gymfeed = require('../../../models/Gymfeed');
 const Challenges = require('../../../models/Challenge');
-const User = require('../../../models/User');
+const Users = require('../../../models/User');
 
 const getGymfeed = async (req, res) => {
     try {
@@ -8,7 +8,7 @@ const getGymfeed = async (req, res) => {
           .populate('userId', 'username email imgUrl')
           .populate('challengeId', 'title description');
 
-          const totalMembers = await User.countDocuments();
+          const totalMembers = await Users.countDocuments();
           gymfeeds.forEach(feed => {
             feed.isAccepted = feed.acceptances.length >= totalMembers / 2;
           });
