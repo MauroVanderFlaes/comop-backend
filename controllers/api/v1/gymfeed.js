@@ -232,8 +232,44 @@ const postGymfeed = async (req, res) => {
         }
       };
 
+
+      const getCompletedChallengesByGymId = async (req, res) => {
+        console.log('getCompletedChallengesByGymId');
+        try {
+          const gymId = req.params.gymId;
+          console.log('gymId:', gymId);
+      
+          // Find all users in the specified gym
+          const users = await Users.find({ gymId });
+      
+          // Array to hold completed challenges for all users in the gym
+          let completedChallenges = [];
+      
+          // For each user, find their completed gym feeds (challenges)
+          for (const user of users) {
+            const gymfeeds = await Gymfeed.find({ userId: user._id, completed: true })
+              .populate('challengeId', 'title description')
+              .populate('userId', 'username email imgUrl');
+      
+            completedChallenges = completedChallenges.concat(gymfeeds);
+          }
+      
+          res.json({
+            status: 'success',
+            data: completedChallenges
+          });
+        } catch (error) {
+          res.status(500).json({
+            status: 'error',
+            message: error.message
+          });
+        }
+      };
+
+
 module.exports.getGymfeed = getGymfeed;
 module.exports.postGymfeed = postGymfeed;
 module.exports.getCompletedChallengesByUserId = getCompletedChallengesByUserId;
 module.exports.acceptGymfeed = acceptGymfeed;
 module.exports.rejectGymfeed = rejectGymfeed;
+module.exports.getCompletedChallengesByGymId = getCompletedChallengesByGymId;
