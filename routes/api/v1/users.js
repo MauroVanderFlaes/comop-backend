@@ -2,16 +2,21 @@ const express = require('express');
 const router = express.Router();
 const usersController = require('../../../controllers/api/v1/users');
 
-router.get("/", usersController.getAllUsers);
-router.get("/:gymId", usersController.getUsersByGymId);
+const auth = require('../../../middleware/auth');
 
-router.post("/profileImg/:id", usersController.uploadProfileImg);
-router.get("/profileImg/:id", usersController.getProfileImg);
+router.get("/", auth.verifyApiKey, usersController.getAllUsers);
+router.get("/:gymId", auth.verifyApiKey, usersController.getUsersByGymId);
 
-router.post('/signup', usersController.createUser);
-router.post("/login", usersController.loginUser);
-router.get("/credits/:id", usersController.getUserCredits);
+router.post('/signup', auth.verifyApiKey, usersController.createUser);
+router.post("/login", auth.verifyApiKey, usersController.loginUser);
+router.get("/credits/:id", auth.verifyApiKey, usersController.getUserCredits);
+
 router.get("/rewards/:id", usersController.getUserWithRewards);
 router.delete("/rewards/:userId/:rewardId", usersController.removeUserReward);
+
+router.post("/profileImg/:id", auth.verifyApiKey, usersController.uploadProfileImg);
+router.get("/profileImg/:id", auth.verifyApiKey, usersController.getProfileImg);
+
+
 
 module.exports = router;
