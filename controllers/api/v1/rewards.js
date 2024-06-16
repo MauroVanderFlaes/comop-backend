@@ -1,4 +1,6 @@
 const Reward = require('../../../models/Reward');
+const User = require('../../../models/User'); 
+
 
 const createReward = async (req, res) => {
   try {
@@ -87,9 +89,66 @@ const updateReward = async (req, res) => {
     }
 }
 
+const buyReward = async (req, res) => {
+  try {
+      const userId = req.body.userId;
+      const rewardId = req.params.id;
+
+      console.log('userId:', userId);
+      console.log('rewardId:', rewardId);
+
+      const user = await User.findById(userId); // Change to Users model
+      const reward = await Reward.findById(rewardId);
+
+      if (!user) {
+          console.error('User not found:', userId);
+          return res.status(404).json({
+              status: 'error',
+              message: 'User not found'
+          });
+      }
+
+      if (!reward) {
+          console.error('Reward not found:', rewardId);
+          return res.status(404).json({
+              status: 'error',
+              message: 'Reward not found'
+          });
+      }
+
+      if (user.credits < reward.credits) {
+          console.error('Not enough credits for user:', userId);
+          return res.status(400).json({
+              status: 'error',
+              message: 'Not enough credits'
+          });
+      }
+
+      user.credits -= reward.credits;
+      user.rewards.push(reward._id);
+
+      await user.save();
+
+      res.status(200).json({
+          status: 'success',
+          message: 'Reward purchased successfully',
+          data: {
+              user
+          }
+      });
+  } catch (error) {
+      console.error('Error purchasing reward:', error);
+      res.status(500).json({
+          status: 'error',
+          message: 'Internal Server Error'
+      });
+  }
+};
+
 
 module.exports = {
   createReward,
   getAllRewardsByGymId,
-  updateReward  
+  updateReward,
+  buyReward  
 };

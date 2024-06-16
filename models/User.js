@@ -29,7 +29,15 @@ const UserSchema = new Schema({
   // New field for updates
   newsletter: {
     type: Boolean,
-  }
+  },
+
+  rewards: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Reward'
+    }
+  ]
+  
 });
 
 const Users = mongoose.model('Users', UserSchema);
