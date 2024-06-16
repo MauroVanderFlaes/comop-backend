@@ -11,5 +11,7 @@ router.get("/profileImg/:id", usersController.getProfileImg);
 router.post('/signup', usersController.createUser);
 router.post("/login", usersController.loginUser);
 router.get("/credits/:id", usersController.getUserCredits);
+router.get("/rewards/:id", usersController.getUserWithRewards);
+router.delete("/rewards/:userId/:rewardId", usersController.removeUserReward);
 
 module.exports = router;

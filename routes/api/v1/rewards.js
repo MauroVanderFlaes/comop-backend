@@ -6,5 +6,6 @@ router.post('/create', rewardsController.createReward);
 router.get('/:gymId', rewardsController.getAllRewardsByGymId);
 // update reward
 router.put('/:id', rewardsController.updateReward);
+router.post('/buy/:id', rewardsController.buyReward);
 
 module.exports = router;

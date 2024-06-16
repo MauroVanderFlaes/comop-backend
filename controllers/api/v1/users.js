@@ -225,6 +225,65 @@ const getUsersByGymId = async (req, res) => {
     }
 };
 
+const getUserWithRewards = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await User.findById(userId).populate('rewards');
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                user
+            }
+        });
+    } catch (error) {
+        console.error('Error getting user with rewards:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        });
+    }
+};
+
+const removeUserReward = async (req, res) => {
+    const { userId, rewardId } = req.params;
+    
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        // Filter out the reward with rewardId from the user's rewards array
+        user.rewards = user.rewards.filter(reward => reward.toString() !== rewardId);
+        await user.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Reward removed successfully',
+            data: {
+                user
+            }
+        });
+    } catch (error) {
+        console.error('Error removing reward from user:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error'
+        });
+    }
+};
+
+
 module.exports = {
     getAllUsers,
     getUsersByGymId,
@@ -232,5 +291,7 @@ module.exports = {
     getProfileImg,
     createUser,
     loginUser,
-    getUserCredits
+    getUserCredits,
+    getUserWithRewards,
+    removeUserReward
 };
