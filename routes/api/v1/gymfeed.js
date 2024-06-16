@@ -10,7 +10,6 @@ router.post('/', auth.verifyApiKey, gymfeedController.postGymfeed);
 router.get('/:userId', auth.verifyApiKey, gymfeedController.getCompletedChallengesByUserId);
 router.post('/:id/accept', auth.verifyApiKey, gymfeedController.acceptGymfeed);
 router.post('/:id/reject', auth.verifyApiKey, gymfeedController.rejectGymfeed);
-router.get('/completed/:gymId', auth.verifyApiKey, gymfeedController.getCompletedChallengesByGymId) 
-
+router.get('/completed/:gymId', auth.verifyApiKey, gymfeedController.getCompletedChallengesByGymId);
 
 module.exports = router

@@ -234,38 +234,43 @@ const postGymfeed = async (req, res) => {
 
 
       const getCompletedChallengesByGymId = async (req, res) => {
-        console.log('getCompletedChallengesByGymId');
+        // console.log('getCompletedChallengesByGymId');
         try {
-          const gymId = req.params.gymId;
-          console.log('gymId:', gymId);
-      
-          // Find all users in the specified gym
-          const users = await Users.find({ gymId });
-      
-          // Array to hold completed challenges for all users in the gym
-          let completedChallenges = [];
-      
-          // For each user, find their completed gym feeds (challenges)
-          for (const user of users) {
-            const gymfeeds = await Gymfeed.find({ userId: user._id, completed: true })
-              .populate('challengeId', 'title description')
-              .populate('userId', 'username email imgUrl');
-      
-            completedChallenges = completedChallenges.concat(gymfeeds);
-          }
-      
-          res.json({
-            status: 'success',
-            data: completedChallenges
-          });
+            const gymId = req.params.gymId;
+            // console.log('gymId:', gymId);
+    
+            // Find all users in the specified gym
+            const users = await Users.find({ gymId }).select('_id username imgUrl');
+            console.log('users:', users);
+    
+            // Array to hold the count of completed challenges for each user in the gym
+            const userChallengeCounts = await Promise.all(users.map(async (user) => {
+                const completedChallenges = await Gymfeed.countDocuments({
+                    userId: user._id,
+                    completed: true
+                });
+    
+                return {
+                    username: user.username,
+                    imgUrl: user.imgUrl,
+                    completedChallenges
+                };
+            }));
+    
+            res.json({
+                status: 'success',
+                data: userChallengeCounts
+            });
         } catch (error) {
-          res.status(500).json({
-            status: 'error',
-            message: error.message
-          });
+            res.status(500).json({
+                status: 'error',
+                message: error.message
+            });
         }
-      };
+    };
 
+
+    
 
 module.exports.getGymfeed = getGymfeed;
 module.exports.postGymfeed = postGymfeed;
