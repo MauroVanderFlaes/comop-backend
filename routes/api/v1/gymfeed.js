@@ -3,8 +3,6 @@ const router = express.Router()
 const gymfeedController = require('../../../controllers/api/v1/gymfeed');
 const auth = require('../../../middleware/auth');
 
-const auth = require('../../../middleware/auth');
-
 router.get('/', auth.verifyApiKey, gymfeedController.getGymfeed);
 router.post('/', auth.verifyApiKey, gymfeedController.postGymfeed);
 
