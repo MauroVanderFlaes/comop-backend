@@ -1,5 +1,6 @@
 const express = require('express')
 const session = require('express-session')
+const cors = require('cors');
 const app = express()
 const port = 3000
 const apiGyms = require('./routes/api/v1/gyms')
@@ -19,6 +20,8 @@ mongoose.connect(process.env.MONGODB).then(() => {
 }).catch((error) => {
   console.error('MongoDB connection error:', error);
 });
+
+app.use(cors());
 
 app.use(express.json());
 
