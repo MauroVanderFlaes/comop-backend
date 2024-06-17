@@ -13,6 +13,8 @@ require('dotenv').config()
 // app.get('/', (req, res) => {
 //   res.send('Hello World!')
 // }) 
+app.use(express.json());
+app.use(cors());
 
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB).then(() => {
@@ -21,9 +23,7 @@ mongoose.connect(process.env.MONGODB).then(() => {
   console.error('MongoDB connection error:', error);
 });
 
-app.use(cors());
 
-app.use(express.json());
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
