@@ -11,8 +11,8 @@ router.post('/signup', auth.verifyApiKey, usersController.createUser);
 router.post("/login", auth.verifyApiKey, usersController.loginUser);
 router.get("/credits/:id", auth.verifyApiKey, usersController.getUserCredits);
 
-router.get("/rewards/:id", usersController.getUserWithRewards);
-router.delete("/rewards/:userId/:rewardId", usersController.removeUserReward);
+router.get("/rewards/:id", auth.verifyApiKey, usersController.getUserWithRewards);
+router.delete("/rewards/:userId/:rewardId", auth.verifyApiKey, usersController.removeUserReward);
 
 router.post("/profileImg/:id", auth.verifyApiKey, usersController.uploadProfileImg);
 router.get("/profileImg/:id", auth.verifyApiKey, usersController.getProfileImg);
